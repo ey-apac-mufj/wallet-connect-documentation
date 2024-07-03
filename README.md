@@ -24,7 +24,6 @@ This should install all the required dependencies for this project.
 `.env` file has these fields:
 
 - `VITE_TW_FACTORY_ADDRESS`: Address of the deployed thirdweb account factory contract
-- `VITE_TW_API_KEY`: Thirdweb API key (from thirdweb dashboard)
 - `VITE_TW_CLIENT_ID`: Thirdweb Client Id (from thirdweb dashboard)
 - `VITE_WALLET_CONNECT_PROJECT_ID`: Wallet Connect Project ID
 - `VITE_API_KEY`: API Key to call 3rd party API (QCFixer API)
