@@ -28,8 +28,22 @@ This should install all the required dependencies for this project.
 - `VITE_WALLET_CONNECT_PROJECT_ID`: Wallet Connect Project ID
 - `VITE_API_KEY`: API Key to call 3rd party API (QCFixer API)
 - `VITE_API_SECRET`: API Secret to call 3rd party API (QCFixer API)
+- `VITE_API_URL`: API URL to call 3rd party API (QCFixer API)
+- `CONTRACT_ADDRESS`: Blockchain contract address
+- `PRIVATE_KEY`: Private key for calling contract functions using wallet provider
+- `ARBITRUM_RPC`: Blockchain RPC URL
 
-## Start The Server
+## Start The Verfier SDK
+
+```bash
+cd vc-verification
+npm install
+npm start
+```
+
+## Start The Application
+
+Open another terminal in the root folder of the project
 
 ```bash
 npm run dev

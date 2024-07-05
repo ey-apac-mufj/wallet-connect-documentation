@@ -5,7 +5,9 @@ import { walletConnect } from "thirdweb/wallets";
 import { useEffect, useState } from "react";
 
 function App() {
-  const [address, setAddress] = useState(null);
+  const [address, setAddress] = useState(
+    "0xB6396Ad5ae35d8c79AC9D162772A753fFF01e338"
+  );
 
   // Create thirdweb client
   const client = createThirdwebClient({
@@ -17,10 +19,16 @@ function App() {
   const [mspoData, setMspoData] = useState(null);
   const [landDeedData, setLandDeedData] = useState(null);
   const [profileData, setProfileData] = useState(null);
+  const [mspoVerification, setMspoVerification] = useState(null);
+  const [landDeedVerification, setLandDeedVerification] = useState(null);
 
-  useEffect(() => {
-    setAddress(wallet?.getAccount()?.address);
-  }, [wallet]);
+  const [mspoVerificationLoader, setMspoVerificationLoader] = useState(null);
+  const [landDeedVerificationLoader, setLandDeedVerificationLoader] =
+    useState(null);
+
+  // useEffect(() => {
+  //   setAddress(wallet?.getAccount()?.address);
+  // }, [wallet]);
 
   useEffect(() => {
     if (address != null) {
@@ -32,10 +40,12 @@ function App() {
   const fetchVcData = async () => {
     setMspoData(null);
     setLandDeedData(null);
+    setMspoVerification(null);
+    setLandDeedVerification(null);
 
     // Fetch MSPO VC
     let mspoRes = await fetch(
-      `https://spherix.my/download/issued-cert-vc?key=${
+      `${import.meta.env.VITE_API_URL}/issued-cert-vc?key=${
         import.meta.env.VITE_API_KEY
       }&secret=${import.meta.env.VITE_API_SECRET}&wallet=${address}`
     );
@@ -44,7 +54,7 @@ function App() {
 
     // Fetch Land Deed VC
     let landDeedRes = await fetch(
-      `https://spherix.my/download/issued-land-deed?key=${
+      `${import.meta.env.VITE_API_URL}/issued-land-deed?key=${
         import.meta.env.VITE_API_KEY
       }&secret=${import.meta.env.VITE_API_SECRET}&wallet=${address}`
     );
@@ -63,8 +73,33 @@ function App() {
     setProfileData(profileData?.data);
   };
 
+  const verifyVc = async (type) => {
+    // console.log(address);
+    let verificationUrl = `http://localhost:3000/verify?address=${address}`;
+    if (type === "MSPO") {
+      setMspoVerification(null);
+      setMspoVerificationLoader(true);
+      verificationUrl += "&type=MSPO";
+    } else {
+      setLandDeedVerification(null);
+      setLandDeedVerificationLoader(true);
+      verificationUrl += "&type=LAND_DEED";
+    }
+    let verificationResult = await fetch(verificationUrl);
+    verificationResult = await verificationResult.json();
+    setMspoVerificationLoader(false);
+    setLandDeedVerificationLoader(false);
+    if (verificationResult?.status == 201) {
+      if (type === "MSPO") {
+        setMspoVerification(verificationResult?.data?.verificationStatus);
+      } else {
+        setLandDeedVerification(verificationResult?.data?.verificationStatus);
+      }
+    }
+  };
+
   return (
-    <div>
+    <div style={{ marginBottom: "30px" }}>
       <h1 style={{ textAlign: "center" }}>Demo Code</h1>
       <div style={{ textAlign: "center" }}>
         <ConnectButton
@@ -113,10 +148,31 @@ function App() {
       )}
       {mspoData && (
         <>
+          <hr />
           <h3>MSPO VC</h3>
           <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
             {JSON.stringify(mspoData?.value, null, 2)}
           </pre>
+          <button onClick={() => verifyVc("MSPO")}>Verify MSPO VC</button>
+          {mspoVerificationLoader ? (
+            <h4>Verifying VC...</h4>
+          ) : (
+            mspoVerification && (
+              <>
+                <h4>
+                  Blockchain Hash verification:{" "}
+                  {mspoVerification?.onChainVC
+                    ? "Verified ✅"
+                    : "Not verified! ❌"}
+                </h4>
+                <h4>
+                  VC JWT verification:{" "}
+                  {mspoVerification?.vc ? "Verified ✅" : "Not verified! ❌"}
+                </h4>
+              </>
+            )
+          )}
+          <hr />
         </>
       )}
       {landDeedData && (
@@ -125,6 +181,35 @@ function App() {
           <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
             {JSON.stringify(landDeedData?.value, null, 2)}
           </pre>
+          <button onClick={() => verifyVc("LAND_DEED")}>
+            Verify Land Deed VC
+          </button>
+          {landDeedVerificationLoader ? (
+            <h4>Verifying VC...</h4>
+          ) : (
+            landDeedVerification && (
+              <>
+                <h4>
+                  Blockchain Hash verification:{" "}
+                  {landDeedVerification?.onChainVC
+                    ? "Verified ✅"
+                    : "Not verified! ❌"}
+                </h4>
+                <h4>
+                  Shape file verification:{" "}
+                  {landDeedVerification?.shapeFile
+                    ? "Verified ✅"
+                    : "Not verified! ❌"}
+                </h4>
+                <h4>
+                  VC JWT verification:{" "}
+                  {landDeedVerification?.vc
+                    ? "Verified ✅"
+                    : "Not verified! ❌"}
+                </h4>
+              </>
+            )
+          )}
         </>
       )}
     </div>
