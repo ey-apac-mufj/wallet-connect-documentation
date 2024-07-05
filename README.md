@@ -35,6 +35,8 @@ This should install all the required dependencies for this project.
 
 ## Start The Verfier SDK
 
+The verifier SDK is `verifierSDK-server.js` file under `vc-verification` folder. To run the verifier you need to do the following.
+
 ```bash
 cd vc-verification
 npm install
